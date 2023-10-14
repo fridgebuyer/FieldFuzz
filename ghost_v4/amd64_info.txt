@@ -1,0 +1,35 @@
+CODESYS Control V3.5.16.20 for x86-64Bit - build Dec  2 2020
+
+Rebased to 0x555555554000
+
+TraceMgrServiceHandler is 000055555DA54F40
+
+CmpTraceMgr__Entry	.text	000055555DA51380	00000108	00000000	00000000	R	.	.	.	.	.	.	.a
+hookfunction_CmpTraceMgr	.text	000055555DA507C0	00000981	00000038	00000000	R	.	.	.	.	.	.	.
+TraceMgrSrvRecordAdd	.text	000055555DA54380	0000042E	000002B8	00000000	R	.	.	.	.	.	.	.
+TraceMgrInitServer	.text	000055555DA55080	00000011	00000000	00000000	R	.	.	.	.	.	.	.
+getversion_CmpTraceMgr	.text	000055555DA48200	00000006	00000000	00000000	R	.	.	.	.	.	.	.
+exports_CmpTraceMgr	.text	000055555DA48140	00000057	00000000	00000000	R	.	.	.	.	.	.	.
+imports_CmpTraceMgr	.text	000055555DA481C0	00000003	00000000	00000000	R	.	.	.	.	.	.	.
+
+CmpMonitor2__Entry	.text	000055555D823640	000000E3	00000000	00000000	R	.	.	.	.	.	T	.
+Monitoring2ReadValue2	.text	000055555D824440	000000A0	00000048	00000010	R	.	.	.	.	.	T	.
+Monitoring2ServiceHandler	.text	000055555D823A80	000009BB	00000348	00000000	R	.	.	.	.	.	.	.
+
+ServerRegisterServiceHandler	.text	000055555DA46E00	00000097	00000028	00000000	R	.	.	.	.	.	.	.
+
+
+# ServerRegisterServiceHandler
+
+; int_RES ServerRegisterServiceHandler(int ulServiceGroup, int pfServiceHandler)
+.text:568EB205                 public ServerRegisterServiceHandler
+
+# TraceMgrServiceHandler
+
+; int_RES TraceMgrServiceHandler(unsigned int ulChannelId, int_HEADER_TAG *pHeaderTag, int64 pduData, int64 pduSendBuffer)
+.text:568FB18E TraceMgrServiceHandler proc near 
+
+# Monitoring2ServiceHandler
+
+int_RES Monitoring2ServiceHandler(unsigned int ulChannelId, int *pHeader, int64 pduData, int64 pduSendBuffer)
+.text:5676C3FE Monitoring2ServiceHandler proc near

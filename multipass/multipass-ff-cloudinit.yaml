@@ -1,0 +1,227 @@
+# Initializ fieldfuzz user and add the multipass-ssh-key SSH key for connecting via SSH (Codesys IDE as well)
+users:
+  - default
+  - name: fieldfuzz
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDC8RBll7kPqHcq0VqNoE4AKF2PtYPpXfmNzve4DfelMXYKshWiZC5CNTR0/2ezDVw1nEbu0ZatBCLOZyD5U3u9etirMXu8bzPnEZnRF4VzJ9bGGaTCOXeqtdR+P5BUsZMkaKNsMqigBEaxRlp2v/8UWfLa1jyFKwBwEKFbGZVAQnF8n3WLbJYHvP2oa9oYQF5r2EV+AWkEkM08fxewRhd3cXwTO/6Q6lO07LansuWeqPUYy5RWYhW/HEreQpmrRhy/+GCwz2q7j0xCO/FO6rzJYfsORroVetg3023+c+y1FyvST0gfDyq+l+xSu19JouTT5F5ovbWD6WsctXOHXtEyyPE5vOtwCiIKMq2JSJDAofFPJmey0icHM1Vfg+J0sKe8VQVbkvwIwUVBAYq5pFlSAHzMQEOCk06riazUkQ2ip+5DdMsJx2o6ZbdjtVDatN3DzX6S8/yFsxzqdlrXAMheJz/YdZRLBEUjGQIZtMtC8dLyW8GMBaf85Cw8WjmshUk= constantine@DESKTOP-146HBPE
+
+# Update apt package database and upgrade
+package_update: true
+package_upgrade: true
+
+# Write files to disable ASLR, setup venvs etc
+write_files:
+
+# Disable ASLR. IMPORTANT: the VM needs to be rebooted after creation for ASLR to be disabled
+- content: kernel.randomize_va_space = 0
+  path: /etc/sysctl.d/01-disable-aslr.conf
+
+# Ghost venv requirements
+- content: |
+    bcrypt==3.2.2
+    capstone==5.0.0rc2
+    certifi==2022.6.15
+    cffi==1.15.1
+    charset-normalizer==2.1.0
+    colorama==0.4.5
+    colored-traceback==0.3.0
+    cryptography==37.0.4
+    frida==15.1.27
+    frida-tools==10.8.0
+    idna==3.3
+    intervaltree==3.1.0
+    Mako==1.2.1
+    MarkupSafe==2.1.1
+    packaging==21.3
+    paramiko==2.11.0
+    pwntools==4.8.0
+    pycparser==2.21
+    pyelftools==0.28
+    Pygments==2.12.0
+    PyNaCl==1.5.0
+    pyparsing==3.0.9
+    pyserial==3.5
+    PySocks==1.7.1
+    python-dateutil==2.8.2
+    requests==2.28.1
+    ROPGadget==6.8
+    rpyc==5.1.0
+    six==1.16.0
+    sortedcontainers==2.4.0
+    unicorn==2.0.0
+    urllib3==1.26.10
+    wcwidth==0.2.5
+  path: /home/ubuntu/ghost_venv_requirements.txt
+
+# Ghost venv configuration script
+- content: |
+    #!/bin/bash
+    python3 -m venv /home/ubuntu/ghost_venv
+    source /home/ubuntu/ghost_venv/bin/activate
+    pip3 install -r /home/ubuntu/ghost_venv_requirements.txt
+  path: /home/ubuntu/create_ghost_venv.sh
+
+# Radamsa installation script
+- content: |
+    #!/bin/bash
+    cd /home/ubuntu
+    git clone https://gitlab.com/akihe/radamsa.git
+    cd radamsa
+    make
+    sudo make install
+  path: /home/ubuntu/install_radamsa.sh
+
+# Pycodesys venv requirements
+- content: |
+    backports.functools-lru-cache==1.6.4
+    backports.shutil-get-terminal-size==1.0.0
+    bcrypt==3.1.7
+    capstone==5.0.0rc2
+    certifi==2021.10.8
+    cffi==1.15.1
+    chardet==4.0.0
+    colored-traceback==0.3.0
+    cryptography==3.3.2
+    decorator==4.4.2
+    enum34==1.1.10
+    futures==3.3.0
+    idna==2.10
+    intervaltree==3.1.0
+    ipaddress==1.0.23
+    ipdb==0.13.9
+    ipython==5.10.0
+    ipython-genutils==0.2.0
+    lxml==4.9.1
+    Mako==1.1.6
+    MarkupSafe==1.1.1
+    opcua==0.98.13
+    packaging==20.9
+    paramiko==2.11.0
+    pathlib2==2.3.7.post1
+    pexpect==4.8.0
+    pickleshare==0.7.5
+    plumbum==1.7.2
+    prompt-toolkit==1.0.18
+    psutil==5.9.1
+    ptyprocess==0.7.0
+    pwntools==4.8.0
+    pycparser==2.21
+    pyelftools==0.28
+    Pygments==2.5.2
+    pymodbus==2.5.3
+    pytz==2022.1
+    requests==2.27.1
+    ROPGadget==6.8
+    rpyc==4.1.5
+    scandir==1.10.0
+    simplegeneric==0.8.1
+    six==1.16.0
+    sortedcontainers==2.4.0
+    toml==0.10.2
+    traitlets==4.3.3
+    trollius==2.2.1
+    typing==3.10.0.0
+    unicorn==2.0.0
+    urllib3==1.26.10
+    wcwidth==0.2.5
+  path: /home/ubuntu/pycodesys_venv_requirements.txt
+
+# Pycodesys venv configuration script
+- content: |
+    #!/bin/bash
+    virtualenv -p /usr/bin/python2.7 /home/ubuntu/pycodesys_venv
+    source /home/ubuntu/pycodesys_venv/bin/activate
+    pip2.7 install -r /home/ubuntu/pycodesys_venv_requirements.txt
+  path: /home/ubuntu/create_pycodesys_venv.sh
+
+
+# Install required packages
+packages:
+  - git
+  - python3-pip
+  - python3-venv
+  - python2.7
+  - gdb
+  - gcc
+  - make
+  - wget
+  - screen
+  - unzip
+
+# Initialize everything. Run commands on first boot
+runcmd:
+  # Another method to disable ASLR
+  # - [ sh, -c, echo "kernel.randomize_va_space = 0" > /etc/sysctl.d/01-disable-aslr.conf ]
+  
+  # Install gdown
+  - [sudo, -H, pip3, install, gdown]
+
+  # Download and extract everyting
+  - [gdown, 'https://drive.google.com/u/0/uc?id=1fxiO60SSNwlWrybU-S9KpDL3MVbouIxW', -O, /home/ubuntu/ff-init-package.zip]
+  - [unzip, /home/ubuntu/ff-init-package.zip, -d, /home/ubuntu/]
+
+  # Download codemeter and codesyscontrol deb files
+  # - [gdown, 'https://drive.google.com/u/0/uc?id=1SyiIG4JjsCDxgSqr3Gc_8HHl3TCj_BCL', -O, /home/ubuntu/codemeter.deb]
+  # - [gdown, 'https://drive.google.com/u/0/uc?id=1u-IQXCqk3Hwbz4jbnlL62rvBf0DF6Cff', -O, /home/ubuntu/codesyscontrol.deb]
+
+  # Install codemeter and codesys
+  - [apt, install, -y, /home/ubuntu/codemeter_7.51.5429.500_amd64.deb]
+  - [dpkg, --force-confdef, --force-confold, -i, /home/ubuntu/codesyscontrol_linux_4.0.0.0_amd64.deb]
+
+  # Create ghost venv
+  - [chmod, +x, /home/ubuntu/create_ghost_venv.sh]
+  - [bash, /home/ubuntu/create_ghost_venv.sh]
+
+  # Enable ptracing non-child processes. Needed for FRIDA used by Ghost
+  - [sed, -i, 's/= 1/= 0/', /etc/sysctl.d/10-ptrace.conf]
+
+  # Install pip2.7
+  - [curl, https://bootstrap.pypa.io/pip/2.7/get-pip.py, --output, /home/ubuntu/get-pip.py]
+  - [python2.7, /home/ubuntu/get-pip.py]
+
+  # Install virtualenv for Python 2.7
+  - [pip2.7, install, virtualenv]
+
+  # Download, build, and install radamsa
+  - [bash, /home/ubuntu/install_radamsa.sh]
+
+  # Create pycodesys venv
+  - [chmod, +x, /home/ubuntu/create_pycodesys_venv.sh]
+  - [bash, /home/ubuntu/create_pycodesys_venv.sh]
+
+  # Download Ghost
+  # - [gdown, https://drive.google.com/drive/folders/1EOb6eAWl-TWfG5vs3sC43uSA40L3UkkH, -O, /home/ubuntu/ghost_multipass, --folder]
+
+  # Append to CODESYSControl_User.cfg the appropriate settings so that we can fuzz with pycodesys
+  # - [echo, -e, '\n[SysExcept]\nEnableFirstLevelHandling=0\n\n[CmpChannelServer]\nMaxChannels = 1\n', \>\>, /etc/CODESYSControl_User.cfg]
+
+  # Download pycodesys (and the old version)
+  # - [gdown, https://drive.google.com/drive/folders/1_vzf4b8VMeGfnrA-PH4W_Uu_lZAYPzMK, -O, /home/ubuntu/pycodesys-master, --folder]
+  # - [gdown, https://drive.google.com/drive/folders/1tkrK8YZ9P_yUHImi0bQ-evkRfAUYLhpN, -O, /home/ubuntu/pycodesys_old, --folder]
+
+  # Download and sideload PlcLogic control logic application
+  # - [gdown, https://drive.google.com/drive/folders/1hFgB4m36fQm1cRkcBZTlK5kvRNEN--L0, -O, /home/ubuntu/control_logic, --folder]
+  - [rm, -rf, /var/opt/codesys/PlcLogic]
+  - [cp, -r, /home/ubuntu/control_logic/PlcLogic, /var/opt/codesys/]
+  - [cp, -r, /home/ubuntu/control_logic/PlcLogic, /etc/]
+  - [cp, /home/ubuntu/control_logic/SysFileMap.cfg, /var/opt/codesys/]
+  - [cp, /home/ubuntu/control_logic/SysFileMap.cfg, /etc/]
+  - [cp, /home/ubuntu/control_logic/CODESYSControl_User.cfg, /etc/]
+  - [cp, /home/ubuntu/control_logic/CODESYSControl.cfg, /etc/]
+
+  # Set correct ownership of /home/ubuntu
+  - [chown, -R, ubuntu, /home/ubuntu]
+
+  # Chmod bash scripts
+  - [chmod, +x, /home/ubuntu/start_pycodesys.sh]
+  - [chmod, +x, /home/ubuntu/codesys_start_wrapper.sh]
+
+  # # Note: Don't write files to /tmp from cloud-init use /run/somedir instead.
+  # # Early boot environments can race systemd-tmpfiles-clean LP: #1707222.
+  # # Make sure to quote characters that YAML would eat up e.g the ':' character.
+
+  # To-Do
+  # 1. Disable codesys autostart from systemctl
+  # 2. control_logic folder some times is not downloaded properly, and copying does not commence properly
+  # 3. 
